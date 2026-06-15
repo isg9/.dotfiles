@@ -21,7 +21,11 @@
 	; navigable), -X keeps content in scrollback on quit. Paging is also what
 	; enables delta's clean line-wrapping of long lines.
 	paging = auto
-	pager = never
+	; less -R keeps delta's ANSI colors; -F quits if the diff fits one screen
+	; (so short diffs feel like stdout); -X leaves the content in scrollback
+	; on quit. delta's `pager` is a program name, not a never/always switch --
+	; that switch is `paging` above.
+	pager = less -RFX
 	; jj-like minimalism: drop the box/rule "boarding lines" but keep the
 	; +/- background highlight (minus-/plus-style left at defaults).
 	hunk-header-style = omit
