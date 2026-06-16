@@ -322,6 +322,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
 })
 
 
--- ─── hrb (reading list) ─────────────────────────────────────────
-lmap("n", "r", function() require("hrb").toggle() end,
-   { desc = "Toggle hrb reading list" })
+-- ─── hr (reading list) ──────────────────────────────────────────
+lmap("n", "r", function() require("hr").toggle() end,
+   { desc = "Toggle hr reading list" })
