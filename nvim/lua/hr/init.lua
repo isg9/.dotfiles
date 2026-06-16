@@ -138,7 +138,14 @@ local function open_current()
       end
    end
    vim.cmd("edit " .. vim.fn.fnameescape(it.path))
-   state.prev_winid = vim.api.nvim_get_current_win()
+   -- a split spawned from the panel inherits its window-local options
+   -- (signcolumn=no, winfixwidth, etc.); restore normal-file defaults so
+   -- the git gutter (gitsigns) and resizing work in the article window.
+   local w = vim.api.nvim_get_current_win()
+   vim.wo[w].signcolumn  = "yes"
+   vim.wo[w].winfixwidth = false
+   vim.wo[w].cursorline  = false
+   state.prev_winid = w
 end
 
 local function act(cmd)
