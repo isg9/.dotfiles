@@ -318,6 +318,7 @@ Plug 'junegunn/fzf.vim'
 Plug 'preservim/nerdcommenter'                  " Commenting
 Plug 'junegunn/goyo.vim' " centered
 Plug 'luochen1990/rainbow'
+Plug 'isdg/hr.vim'                               " hr reading-list sidebar
 
 let g:rainbow_active = 1
 
@@ -392,6 +393,13 @@ nnoremap <C-f> :NERDTreeFind<CR>   " Find current file
 let NERDTreeShowHidden=1
 let g:NERDTreeWinSize=40
 autocmd FileType nerdtree setlocal number
+
+" ============================================================
+"                  HR (READING LIST)
+" ============================================================
+" isdg/hr.vim — sidebar over the `hr` CLI; same <leader>r as nvim.
+" (Russian layout works via the к->r remap above.)
+nnoremap <silent> <leader>r :HrToggle<CR>
 
 " Palace wiki-link picker (<leader>nl) — sibling file, resolved through symlinks
 let s:script_dir = fnamemodify(resolve(expand('<sfile>:p')), ':h')
