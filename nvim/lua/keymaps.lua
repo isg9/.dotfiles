@@ -325,5 +325,5 @@ vim.api.nvim_create_autocmd("LspAttach", {
 -- ─── hr (reading list) ──────────────────────────────────────────
 -- Provided by the hr.vim plugin (see lua/plugins.lua); :HrToggle is the
 -- portable Vimscript replacement for the old require("hr") Lua module.
-lmap("n", "r", "<Cmd>HrToggle<CR>",
+lmap("n", "nr", "<Cmd>HrToggle<CR>",
    { desc = "Toggle hr reading list", silent = true })
