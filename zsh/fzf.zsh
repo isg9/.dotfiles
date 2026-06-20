@@ -3,6 +3,7 @@
 #   fA  — :Rg     rg once, fuzzy-filter results
 #   fa  — :RG     live ripgrep (re-runs on each keystroke)
 #   fC  — :BLines analog; default opens editor, -p prints
+#   hrb — hr reading list: fuzzy-pick an unread article, open it in nvim
 
 if command -v bat >/dev/null 2>&1; then
    _fzf_preview='bat --color=always --style=numbers --highlight-line {2} {1}'
@@ -99,4 +100,30 @@ fC() {
    else
       print -r -- "$sel"
    fi
+}
+
+hrb() {
+   # Fuzzy-pick an article from the hr reading list (`hr list --tsv` columns:
+   # path<TAB>feed<TAB>date<TAB>read<TAB>fav<TAB>title; read and unread both)
+   # and open it in nvim, where the hr.vim plugin is loaded (sidebar: `nr`).
+   command -v hr >/dev/null 2>&1 || { print -u2 "hr not found"; return 1 }
+   local preview
+   if command -v bat >/dev/null 2>&1; then
+      preview='bat --color=always --style=plain --language=markdown {1}'
+   else
+      preview='cat {1}'
+   fi
+   # Reformat to `path<TAB>date · feed · title`: field 1 stays the path (for
+   # preview/open via {1}), field 2 is the display column with real spaces —
+   # fzf --with-nth joining would otherwise concatenate the columns.
+   local out file
+   out=$(hr list --tsv 2>/dev/null \
+      | awk -F'\t' -v OFS='\t' '{ print $1, $3 "  ·  " $2 "  ·  " $6 }' \
+      | fzf --ansi --delimiter='\t' --with-nth='2..' \
+            --query "${1:-}" \
+            --prompt 'hr> ' --layout=reverse \
+            --preview "$preview" \
+            --preview-window 'down:70%') || return
+   file=${out%%$'\t'*}
+   [[ -n $file ]] && "${EDITOR:-nvim}" "$file"
 }
