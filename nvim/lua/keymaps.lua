@@ -156,9 +156,6 @@ lmap("n", "i", function()
    end
 end, { desc = "Show breadcrumb" })
 lmap("n", "m", "<cmd>Telescope diagnostics<CR>", { desc = "Diagnostics" })
-lmap("n", "f", function()
-   require("telescope.builtin").live_grep({ search_dirs = { vim.fn.expand("%:p") } })
-end, { desc = "Ripgrep in current file" })
 lmap("n", "B", "<cmd>History<CR>", { desc = "Recent files (fzf)" })
 
 -- -- Search across open buffers (equivalent to :Lines)
@@ -303,6 +300,11 @@ map("n", "<leader>gd", function() require("git_range").pick() end,
 map("n", "<leader>gj", "<cmd>Commits<CR>", { desc = "Git commits (fzf)" })
 map("n", "<leader>gk", "<cmd>BCommits<CR>", { desc = "Git commits for current file (fzf)" })
 
+
+-- ─── Format ────────────────────────────────────────────────────
+map("n", "<leader>ff", function()
+   require("conform").format({ async = true, lsp_fallback = true })
+end, { desc = "Format buffer" })
 
 -- ─── LSP keymaps (on attach) ───────────────────────────────────
 vim.api.nvim_create_autocmd("LspAttach", {

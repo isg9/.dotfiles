@@ -321,10 +321,11 @@ return {
                markdown = { "prettier" },
                python = { "ruff_format", "ruff_organize_imports" },
             },
-            format_on_save = {
-               timeout_ms = 500,
-               lsp_fallback = true,
-            },
+            format_on_save = { timeout_ms = 500, lsp_fallback = true },
+         })
+         vim.api.nvim_create_autocmd("FileType", {
+            pattern = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
+            callback = function() vim.b.conform_on_save_disabled = true end,
          })
       end,
    },
