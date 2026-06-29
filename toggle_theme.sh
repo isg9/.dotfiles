@@ -48,14 +48,14 @@ else
     STATUS+="Neovim: init.lua not found\n"
 fi
 
-# --- Zsh: toggle ISG_THEME_MODE ---
-if grep -q "ISG_THEME_MODE=light" "$REAL_ZSHRC"; then
-    sed -i '' 's/ISG_THEME_MODE=light/ISG_THEME_MODE=dark/' "$REAL_ZSHRC"
-    STATUS+="Zsh: dark\n"
-else
-    sed -i '' 's/ISG_THEME_MODE=dark/ISG_THEME_MODE=light/' "$REAL_ZSHRC"
-    STATUS+="Zsh: light\n"
-fi
+# --- Source of truth: the mode file (read by zsh -> bat/less/ls, ghostty) ---
+# Writing one untracked file replaces sed-ing ISG_THEME_MODE into .zshrc, so
+# no tracked file changes and new shells always reflect the current theme.
+THEME_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/isg/theme"
+mkdir -p "$(dirname "$THEME_FILE")"
+echo "$MODE" > "$THEME_FILE"
+STATUS+="mode file: $MODE\n"
+STATUS+="Zsh/bat: $MODE (new shells; 'exec zsh' to refresh open ones)\n"
 
 # --- Hyper: toggle comment on localPlugins ---
 if grep -q '^[[:space:]]*localPlugins:[[:space:]]*\["light"\],' "$REAL_HYPER"; then
@@ -68,25 +68,13 @@ else
     STATUS+="Hyper: localPlugins not found\n"
 fi
 
-# --- Ghostty: toggle theme (Catppuccin Latte <-> Mocha) + cursor + bg/fg ---
+# --- Ghostty: select theme via the theme-active.conf include symlink ---
+# One symlink swap replaces five seds on the tracked config; theme-active.conf
+# is gitignored, so toggling never dirties the repo.
 if [ -f "$REAL_GHOSTTY" ]; then
-    if grep -q "^theme = Catppuccin Latte" "$REAL_GHOSTTY"; then
-        sed -i '' 's/^theme = Catppuccin Latte/theme = Catppuccin Mocha/' "$REAL_GHOSTTY"
-        sed -i '' 's/^background = F2F2F2/background = 2f2f2f/' "$REAL_GHOSTTY"
-        sed -i '' 's/^foreground = 000000/foreground = D4D4D4/' "$REAL_GHOSTTY"
-        sed -i '' 's/^cursor-color = 444444/cursor-color = CCCCCC/' "$REAL_GHOSTTY"
-        sed -i '' 's/^cursor-text = F2F2F2/cursor-text = 2f2f2f/' "$REAL_GHOSTTY"
-        STATUS+="Ghostty: dark\n"
-    elif grep -q "^theme = Catppuccin Mocha" "$REAL_GHOSTTY"; then
-        sed -i '' 's/^theme = Catppuccin Mocha/theme = Catppuccin Latte/' "$REAL_GHOSTTY"
-        sed -i '' 's/^background = 2f2f2f/background = F2F2F2/' "$REAL_GHOSTTY"
-        sed -i '' 's/^foreground = D4D4D4/foreground = 000000/' "$REAL_GHOSTTY"
-        sed -i '' 's/^cursor-color = CCCCCC/cursor-color = 444444/' "$REAL_GHOSTTY"
-        sed -i '' 's/^cursor-text = 2f2f2f/cursor-text = F2F2F2/' "$REAL_GHOSTTY"
-        STATUS+="Ghostty: light\n"
-    else
-        STATUS+="Ghostty: theme line not found\n"
-    fi
+    GHOSTTY_DIR="$(dirname "$REAL_GHOSTTY")"
+    ln -sf "theme-$MODE.conf" "$GHOSTTY_DIR/theme-active.conf"
+    STATUS+="Ghostty: $MODE (reload open windows with cmd+shift+,)\n"
 else
     STATUS+="Ghostty: config not found\n"
 fi

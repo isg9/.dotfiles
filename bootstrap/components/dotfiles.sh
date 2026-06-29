@@ -156,6 +156,20 @@ link_dotfiles() {
         echo "[SKIP] Ghostty config already in place (source and target are the same)"
     fi
 
+    # Theme source of truth + ghostty active-theme include (default: light).
+    # toggle_theme.sh maintains both afterwards.
+    local theme_file="${XDG_CONFIG_HOME:-$HOME/.config}/isg/theme"
+    if [ ! -f "$theme_file" ]; then
+        mkdir -p "$(dirname "$theme_file")"
+        echo light > "$theme_file"
+        echo "[OK] Seeded theme mode file ($theme_file = light)"
+    fi
+    local active="$dotfiles_dir/ghostty/theme-active.conf"
+    if [ ! -e "$active" ]; then
+        ln -sf "theme-$(cat "$theme_file").conf" "$active"
+        echo "[OK] Seeded ghostty/theme-active.conf -> theme-$(cat "$theme_file").conf"
+    fi
+
     # Link bat config dir (carries custom vs_dark/vs_light preview themes).
     # Rebuild bat's theme cache so BAT_THEME=vs_dark/vs_light resolves.
     local bat_src="$dotfiles_dir/bat"

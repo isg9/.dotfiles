@@ -11,18 +11,12 @@ adjust-cell-width = -5%
 font-feature = -liga
 font-feature = -calt
 
-# --- theme ---
-# Try also: "Tomorrow", "GitHub Light Default", "Atom One Light", "Ayu Light"
-theme = Catppuccin Latte
+# --- theme (light/dark) ---
+# theme + bg/fg/cursor colors live in theme-dark.conf / theme-light.conf and
+# are selected by the theme-active.conf symlink, flipped by toggle_theme.sh
+# from the ~/.config/isg/theme source of truth. Put alternate themes there.
+config-file = theme-active.conf
 
-# match nvim colors/vs_light.vim and vs_dark.vim Normal hi-group
-# (toggle_theme.sh swaps these along with the theme)
-background = F2F2F2
-foreground = 000000
-
-# cursor flips with theme (toggle_theme.sh swaps these)
-cursor-color = 444444
-cursor-text = F2F2F2
 cursor-style = block
 cursor-style-blink = false
 cursor-invert-fg-bg = false
