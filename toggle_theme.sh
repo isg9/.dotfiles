@@ -1,18 +1,12 @@
 #!/bin/bash
 # Toggle themes for Vim, Zsh, and Hyper (macOS)
 
-VIMRC="$HOME/.vimrc"
-NVIM_INIT="$HOME/.config/nvim/init.lua"
-ZSHRC="$HOME/.zshrc"
 HYPER="$HOME/.hyper.js"
 GHOSTTY="$HOME/.config/ghostty/config"
 TMUX_CONF="$HOME/.tmux.conf"
 NOM="$HOME/Library/Application Support/nom/config.yml"
 
 # Resolve symlinks
-REAL_VIMRC="$(readlink "$VIMRC" || echo "$VIMRC")"
-REAL_NVIM="$(readlink "$NVIM_INIT" || echo "$NVIM_INIT")"
-REAL_ZSHRC="$(readlink "$ZSHRC" || echo "$ZSHRC")"
 REAL_HYPER="$(readlink "$HYPER" || echo "$HYPER")"
 REAL_GHOSTTY="$(readlink "$GHOSTTY" || echo "$GHOSTTY")"
 REAL_TMUX="$(readlink "$TMUX_CONF" || echo "$TMUX_CONF")"
@@ -20,41 +14,19 @@ REAL_NOM="$(readlink "$NOM" || echo "$NOM")"
 # config is itself in a symlinked dir; resolve fully
 [ -L "$REAL_GHOSTTY" ] || REAL_GHOSTTY="$(cd "$(dirname "$GHOSTTY")" && pwd -P)/$(basename "$GHOSTTY")"
 
-# Track which mode we're switching to
-MODE=""
 STATUS=""
 
-# --- Vim: toggle colorscheme ---
-if grep -q "colorscheme vs_light" "$REAL_VIMRC"; then
-    sed -i '' 's/colorscheme vs_light/colorscheme vs_dark/' "$REAL_VIMRC"
-    STATUS+="Vim: vs_dark\n"
-    MODE="dark"
-else
-    sed -i '' 's/colorscheme vs_dark/colorscheme vs_light/' "$REAL_VIMRC"
-    STATUS+="Vim: vs_light\n"
-    MODE="light"
-fi
-
-# --- Neovim: toggle colorscheme ---
-if [ -f "$REAL_NVIM" ]; then
-    if grep -q 'colorscheme vs_light' "$REAL_NVIM"; then
-        sed -i '' 's/colorscheme vs_light/colorscheme vs_dark/' "$REAL_NVIM"
-        STATUS+="Neovim: vs_dark\n"
-    else
-        sed -i '' 's/colorscheme vs_dark/colorscheme vs_light/' "$REAL_NVIM"
-        STATUS+="Neovim: vs_light\n"
-    fi
-else
-    STATUS+="Neovim: init.lua not found\n"
-fi
-
-# --- Source of truth: the mode file (read by zsh -> bat/less/ls, ghostty) ---
-# Writing one untracked file replaces sed-ing ISG_THEME_MODE into .zshrc, so
-# no tracked file changes and new shells always reflect the current theme.
+# --- Source of truth: flip the mode file ---
+# Everything derives from this one untracked file. zsh (-> bat/less/ls), ghostty,
+# vim and nvim all READ it at startup, so toggling rewrites no tracked file for
+# them. Apps further down that lack a read path are still set from $MODE.
 THEME_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/isg/theme"
+cur="$(cat "$THEME_FILE" 2>/dev/null || echo light)"
+[ "$cur" = dark ] && MODE=light || MODE=dark
 mkdir -p "$(dirname "$THEME_FILE")"
 echo "$MODE" > "$THEME_FILE"
-STATUS+="mode file: $MODE\n"
+STATUS+="mode: $cur -> $MODE\n"
+STATUS+="Vim/Neovim: vs_$MODE (on next start)\n"
 STATUS+="Zsh/bat: $MODE (new shells; 'exec zsh' to refresh open ones)\n"
 
 # --- Hyper: toggle comment on localPlugins ---

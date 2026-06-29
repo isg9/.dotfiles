@@ -294,7 +294,13 @@ set regexpengine=0    " Auto-select best regex engine (new engine is faster for 
 "             VSCODE STUDIO LIGHT-LIKE COLOR SCHEME
 " ============================================================
 
-colorscheme vs_light
+" Theme mode (dark|light) from the single source of truth (~/.config/isg/theme,
+" written by toggle_theme.sh). Read at startup so new vim instances always match
+" the current theme — no sed of this file. Falls back to light.
+let s:isg_theme_file = (empty($XDG_CONFIG_HOME) ? expand('~/.config') : $XDG_CONFIG_HOME) . '/isg/theme'
+let s:isg_mode = filereadable(s:isg_theme_file) ? trim(readfile(s:isg_theme_file)[0]) : 'light'
+if s:isg_mode !=# 'dark' && s:isg_mode !=# 'light' | let s:isg_mode = 'light' | endif
+execute 'colorscheme vs_' . s:isg_mode
 
 
 " ============================================================
